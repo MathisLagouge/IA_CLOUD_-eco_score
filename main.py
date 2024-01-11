@@ -2,6 +2,8 @@ import sys
 sys.path.append('Scraping')
 from Scraping import scrape_reviews
 from Scraping import categorization
+sys.path.append('Modele')
+from Modele import rate_restaurant
 
 
 if __name__ == "__main__":
@@ -14,3 +16,5 @@ if __name__ == "__main__":
     # Categorize reviews
     categorization.categorize(path)
 
+    # Create a csv which rates the restaurants of a city
+    rate_restaurant.creation_csv(location)
