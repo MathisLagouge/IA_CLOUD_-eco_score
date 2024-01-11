@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import csv
 import pandas as pd
 import os
+import categorization
 
 def scrape_reviews(page, location, places, links, path):
     for i in range(len(links)):
@@ -81,6 +82,10 @@ def main():
 
         finally:
             page.close()
+            
+            # Categorize reviews
+            path = 'Scraping/reviews.csv'
+            categorization.categorize(path)
 
 if __name__ == "__main__":
     main()

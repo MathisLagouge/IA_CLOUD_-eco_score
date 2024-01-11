@@ -53,10 +53,10 @@ def process_data(path):
 
     return processed_reviews
 
-path = 'Scraping/reviews.csv'
-categorized_reviews = process_data(path)
+def categorize(path):
+    categorized_reviews = process_data(path)
 
-# Create one csv file per category
-for category, reviews in categorized_reviews.items():
-    df = pd.DataFrame(reviews, columns=['CITY', 'PLACE', 'REVIEW', 'LINK'])
-    df.to_csv(f"Scraping/categories/{category}.csv", index=False)
+    # Create one csv file per category
+    for category, reviews in categorized_reviews.items():
+        df = pd.DataFrame(reviews, columns=['CITY', 'PLACE', 'REVIEW', 'LINK'])
+        df.to_csv(f"Scraping/categories/{category}.csv", index=False)
