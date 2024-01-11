@@ -44,10 +44,8 @@ def scrape_reviews(page, location, places, links, path):
             for review in reviews:
                 writer.writerow([location, places[i], review, links[i]])
 
-def main():
-    path = 'Scraping/reviews.csv'
+def scrape(path, location):
     category = "restaurants"
-    location = "Houston"
     url = "https://www.google.com/"
 
     with sync_playwright() as p:
@@ -63,7 +61,7 @@ def main():
             page.click('.GKS7s')
             time.sleep(4)
 
-            for _ in range(20):
+            for _ in range(2):
                 html = page.inner_html('body')
                 soup = BeautifulSoup(html, 'html.parser')
                 categories = soup.select('.hfpxzc')
@@ -83,9 +81,4 @@ def main():
         finally:
             page.close()
             
-            # Categorize reviews
-            path = 'Scraping/reviews.csv'
-            categorization.categorize(path)
-
-if __name__ == "__main__":
-    main()
+        
