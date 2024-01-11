@@ -4,13 +4,12 @@ from datasets import load_dataset
 
 CATEGORIES = ["organic", "climate", "water", "social", "governance", "waste", "adverse"]
 DF = {}
-MODEL_PATH = "Restaurant_Stars"
-CITY = "New York"
+MODEL_PATH = ""
 
 def creation_csv(city):
     for i in range(len(CATEGORIES)):
         print("Traitement de la categorie ", CATEGORIES[i])
-        datas = load_dataset("csv", data_files=str(city + "/" + CATEGORIES[i] + ".csv"))["train"]
+        datas = load_dataset("csv", data_files=str("Scrapping/categories/" + city + "/" + CATEGORIES[i] + ".csv"))["train"]
         liste_restaurant = []
         iter = 0
         while(iter < len(datas["PLACE"])):
@@ -36,16 +35,20 @@ def creation_csv(city):
             "social" : [],
             "governance" : [],
             "waste" : [],
-            "adverse" : []}
+            "adverse" : [],
+            "mean" : []}
     for x in DF.keys():
         final["PLACE"].append(x)
+        nb_categories = 0
+        mean = 0
         for y in CATEGORIES:
             try:
                 final[y].append(DF[x]["Review_"+y])
+                nb_categories += 1
+                mean += DF[x]["Review_"+y]
             except:
                 final[y].append(None)
+        final["mean"].append(mean / nb_categories)
 
     dataframe = pd.DataFrame(final)
-    dataframe.to_csv('notation_restaurant_' + city + '.csv', index=False)
-
-creation_csv(CITY)
+    dataframe.to_csv("Scrapping/categories/" + city + "/notation_restaurant.csv", index=False)
