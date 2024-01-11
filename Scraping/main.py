@@ -3,89 +3,29 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import csv
 import pandas as pd
+import os
 
-# Path of the CSV file where we will write the reviews
-path = 'Scraping/reviews.csv'
-
-# the category for which we seek reviews
-CATEGORY = "restaurants"
-
-# the location
-LOCATION = "New York"
-
-# google's main URL
-URL = "https://www.google.com/"
-
-with sync_playwright() as pw:
-    # creates an instance of the Chromium browser and launches it
-    browser = pw.chromium.launch(headless=False)
-
-    # creates a new browser page (tab) within the browser instance
-    page = browser.new_page()
-
-    # go to url with Playwright page element
-    page.goto(URL)
-
-    # deal with cookies
-    page.click('.QS5gu.sy4vM')
-
-    # write what you're looking for
-    page.fill("textarea", f"{CATEGORY} near {LOCATION}")
-
-    # press enter
-    page.keyboard.press('Enter')
-
-    # change to english
-    page.locator("text='Change to English'").click()
-    time.sleep(4)
-
-    # click in the "Maps" HTML element
-    page.click('.GKS7s')
-    time.sleep(4)
-
-    # scrolling
-    for i in range(10):
-        # tackle the body element
-        html = page.inner_html('body')
-
-        # create beautiful soup element
-        soup = BeautifulSoup(html, 'html.parser')
-
-        # select items
-        categories = soup.select('.hfpxzc')
-        last_category_in_page = categories[-1].get('aria-label')
-
-        # scroll to the last item
-        last_category_location = page.locator(
-            f"text={last_category_in_page}")
-        last_category_location.scroll_into_view_if_needed()
-
-    # get links of all categories after scroll
-    links = [item.get('href') for item in soup.select('.hfpxzc')]
-
-    # get links of all categories after scroll
-    places = [item.get('aria-label') for item in soup.select('.hfpxzc')]
-
+def scrape_reviews(page, location, places, links, path):
     for i in range(len(links)):
-        # Check if the restaurant is already in the CSV
         df = pd.read_csv(path)
+        if df.empty:
+            with open(path, 'a') as f:
+                writer = csv.writer(f)
+                writer.writerow(["CITY", "PLACE", "REVIEW", "LINK"])
+
         df = df[df['PLACE'] == places[i]]
-        if not df.empty:
-            print("Skipping : ", LOCATION, places[i])
+        if not df.empty or places[i] == 'New York':
+            print("Skipping:", location, places[i])
             continue
 
-        # go to subject link
         page.goto(links[i])
         time.sleep(4)
 
-        # load  reviews
         page.locator("text='Reviews'").first.click()
         time.sleep(4)
 
-        # create new soup
         html = page.inner_html('body')
 
-        # Scroll down to load more reviews until no more are loaded
         while True:
             page.mouse.wheel(0, 15000)
             time.sleep(2)
@@ -94,17 +34,53 @@ with sync_playwright() as pw:
                 break
             html = new_html
 
-        # create beautiful soup element
         soup = BeautifulSoup(html, 'html.parser')
+        reviews = [review.find('span').text for review in soup.select('.MyEned')]
+        print("Number of reviews:", len(reviews))
 
-        # get all reviews
-        reviews = soup.select('.MyEned')
-        reviews = [review.find('span').text for review in reviews]
-        print("Number of reviews : ", len(reviews))
-
-        # Write to CSV with | CITY | PLACE | REVIEW |
         with open(path, 'a') as f:
             writer = csv.writer(f)
             for review in reviews:
-                print("Writing : ", LOCATION, places[i], review)
-                writer.writerow([LOCATION, places[i], review])
+                writer.writerow([location, places[i], review, links[i]])
+
+def main():
+    path = 'Scraping/reviews.csv'
+    category = "restaurants"
+    location = "Houston"
+    url = "https://www.google.com/"
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
+        try:
+            page.goto(url)
+            page.click('.QS5gu.sy4vM')
+            page.fill("textarea", f"{category} near {location}")
+            page.keyboard.press('Enter')
+            page.locator("text='Change to English'").click()
+            time.sleep(4)
+            page.click('.GKS7s')
+            time.sleep(4)
+
+            for _ in range(20):
+                html = page.inner_html('body')
+                soup = BeautifulSoup(html, 'html.parser')
+                categories = soup.select('.hfpxzc')
+                last_category_in_page = categories[-1].get('aria-label')
+                page.locator(f"text={last_category_in_page}").scroll_into_view_if_needed()
+
+            links = [item.get('href') for item in soup.select('.hfpxzc')]
+            places = [item.get('aria-label') for item in soup.select('.hfpxzc')]
+
+            if not os.path.exists(path):
+                with open(path, 'a') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(["CITY", "PLACE", "REVIEW", "LINK"])
+
+            scrape_reviews(page, location, places, links, path)
+
+        finally:
+            page.close()
+
+if __name__ == "__main__":
+    main()
