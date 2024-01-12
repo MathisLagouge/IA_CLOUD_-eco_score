@@ -4,6 +4,9 @@ from transformers import BertForSequenceClassification, AutoTokenizer
 import torch
 from datasets import Dataset, DatasetDict
 
+# Donner un score sur les donnees que l'on veut tester
+
+# Tokeniser les donnees que l'on veut tester
 def tokenize_data(raw_dataset):
 
     raw_dataset = Dataset.from_dict(raw_dataset)
@@ -18,12 +21,14 @@ def tokenize_data(raw_dataset):
 
     return tokenized_dataset
 
+# On prédit si les donnees sont négatives, neutres ou positives
 def prediction(model_path, dataset):
 
     model = BertForSequenceClassification.from_pretrained(model_path)
 
     tokens = tokenize_data(dataset)
 
+    # On comptabilise le nombre de reviews négatives, neutres et positives
     nb_review = len(tokens)
     nb_neg = 0
     nb_neu = 0
@@ -44,12 +49,14 @@ def prediction(model_path, dataset):
         
     return(nb_neg,nb_pos,nb_review)
 
+# Calculer le score obtenu par les donnees predites en fonction du pourcentage de reviews négatives, neutres ou positives
 def score(nb_neg,nb_pos,nb_review):
 
     star = nb_review // 2
-    star = star + nb_pos - nb_neg
+    star = star + (nb_pos - nb_neg) // 2
     star = star / nb_review
 
+    # En fonction du pourcentage obtenu, on donne une note
     if star < 0:
         star = 0
     elif star < 0.1:
