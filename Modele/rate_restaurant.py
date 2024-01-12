@@ -16,7 +16,7 @@ def creation_csv(city):
     for i in range(len(CATEGORIES)):
         print("Traitement de la categorie ", CATEGORIES[i])
         # On charge le csv associe
-        datas = load_dataset("csv", data_files=str("Scrapping/categories/" + city + "/" + CATEGORIES[i] + ".csv"))["train"]
+        datas = load_dataset("csv", data_files=str("Scraping/categories/" + city + "/" + CATEGORIES[i] + ".csv"))["train"]
         liste_restaurant = []
         iter = 0
         # On recupere tous les restaurants et leurs reviews
@@ -61,4 +61,4 @@ def creation_csv(city):
 
     # On enregistre le dataframe dans un csv
     dataframe = pd.DataFrame(final)
-    dataframe.to_csv("Scrapping/categories/" + city + "/notation_restaurant.csv", index=False)
+    dataframe.to_csv("Scraping/categories/" + city + "/notation_restaurant.csv", index=False)
