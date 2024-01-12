@@ -7,7 +7,7 @@ BATCH_SIZE = 4
 TEST_SIZE = 0.2
 NUM_EPOCH = 5
 DATA_PATH = "data/restaurant_stars_int_eq.csv"
-SAVE_PATH = "save_trained_model"
+SAVE_PATH = "trained_model"
 
 #model training
 #save the trained model
