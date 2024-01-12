@@ -4,7 +4,7 @@ from datasets import load_dataset
 
 CATEGORIES = ["organic", "climate", "water", "social", "governance", "waste", "adverse"]
 DF = {}
-MODEL_PATH = ""
+MODEL_PATH = "trained_model"
 
 def creation_csv(city):
     for i in range(len(CATEGORIES)):
