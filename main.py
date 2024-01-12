@@ -14,7 +14,7 @@ if __name__ == "__main__":
     scrape_reviews.scrape(path, location)
     
     # Categorize reviews
-    categorization.categorize(path)
+    categorization.categorize(path, threshold=0.7)
 
     # Create a csv which rates the restaurants of a city
     rate_restaurant.creation_csv(location)

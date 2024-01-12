@@ -34,7 +34,7 @@ def test_similarity(word1, word2):
         pass
     return similarity
 
-def process_data(path):
+def process_data(path, threshold=0.7):
     processed_reviews = {category: [] for category in categories}
     
     print("Reading data at {0}".format(path))
@@ -47,14 +47,14 @@ def process_data(path):
         review = preprocess_review(row['REVIEW'])
         
         for category, words in categories.items():
-            if any(test_similarity(review_word, word) > 0.7 for review_word in review for word in words):
+            if any(test_similarity(review_word, word) > threshold for review_word in review for word in words):
                 processed_reviews[category].append(row)
                 print("Added review to category {0}".format(category))
 
     return processed_reviews
 
-def categorize(path):
-    categorized_reviews = process_data(path)
+def categorize(path, threshold=0.7):
+    categorized_reviews = process_data(path, threshold)
 
     # Create one csv file per category
     for category, reviews in categorized_reviews.items():
