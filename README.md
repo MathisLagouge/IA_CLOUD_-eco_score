@@ -28,6 +28,10 @@ Description :
 
         $- python main.py
 
+    In a browser
+
+        https://kleinarthu.bubbleapps.io/version-test
+
 
 ## 2. Training Sentiment Analysis Model
 
